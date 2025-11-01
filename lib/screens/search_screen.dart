@@ -1,221 +1,135 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import '../controllers/search_pet_controller.dart';
+import '../controllers/pet_controller.dart';
+import '../widgets/pet_card.dart';
+import 'pet_detail_screen.dart';
 
 class SearchScreen extends StatelessWidget {
   SearchScreen({super.key});
 
-  final SearchPetController controller = Get.put(SearchPetController());
-
-  final List<String> animalTypes = ['dog', 'cat', 'rabbit', 'bird'];
-  final List<String> ageOptions = ['baby', 'young', 'adult', 'senior'];
-  final List<String> genderOptions = ['male', 'female'];
+  final PetController controller = Get.put(PetController());
 
   @override
   Widget build(BuildContext context) {
-    // Load initial data
-    controller.loadBreeds();
-
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text(
-          'Search Pets',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Search Pets'),
         centerTitle: true,
+        backgroundColor: Colors.teal,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Obx(() {
-          if (controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          if (controller.errorMessage.isNotEmpty) {
-            return Center(child: Text(controller.errorMessage.value));
-          }
-
-          return SingleChildScrollView(
+        return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🐾 Animal type selector
-                Text(
-                  "Select Animal Type",
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 8),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: animalTypes.map((type) {
-                      final isSelected = controller.selectedType.value == type;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: ChoiceChip(
-                          label: Text(type.capitalizeFirst!),
-                          selected: isSelected,
-                          onSelected: (_) => controller.changeAnimalType(type),
+                // 🧩 Filter Section
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.45,
+                      child: DropdownButtonFormField<String>(
+                        value: controller.selectedType.value,
+                        decoration: const InputDecoration(
+                          labelText: 'Type',
+                          border: OutlineInputBorder(),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // 🐶 Breed dropdown
-                Text("Select Breed", style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
-                DropdownButton<String>(
-                  isExpanded: true,
-                  hint: const Text("Select Breed"),
-                  value: controller.selectedBreed.value.isEmpty
-                      ? null
-                      : controller.selectedBreed.value,
-                  items: controller.breeds.map((breed) {
-                    return DropdownMenuItem(
-                      value: breed,
-                      child: Text(breed),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    controller.selectedBreed.value = value ?? '';
-                  },
-                ),
-
-                const SizedBox(height: 12),
-
-                // 🕑 Age dropdown
-                Text("Select Age", style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
-                DropdownButton<String>(
-                  isExpanded: true,
-                  hint: const Text("Select Age"),
-                  value: controller.selectedAge.value.isEmpty
-                      ? null
-                      : controller.selectedAge.value,
-                  items: ageOptions.map((age) {
-                    return DropdownMenuItem(
-                      value: age,
-                      child: Text(age.capitalizeFirst!),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    controller.selectedAge.value = value ?? '';
-                  },
-                ),
-
-                const SizedBox(height: 12),
-
-                // 🚻 Gender dropdown
-                Text("Select Gender", style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
-                DropdownButton<String>(
-                  isExpanded: true,
-                  hint: const Text("Select Gender"),
-                  value: controller.selectedGender.value.isEmpty
-                      ? null
-                      : controller.selectedGender.value,
-                  items: genderOptions.map((gender) {
-                    return DropdownMenuItem(
-                      value: gender,
-                      child: Text(gender.capitalizeFirst!),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    controller.selectedGender.value = value ?? '';
-                  },
-                ),
-
-                const SizedBox(height: 20),
-
-                // 🔍 Search button
-                Center(
-                  child: ElevatedButton.icon(
-                    onPressed: controller.searchPets,
-                    icon: const Icon(Icons.search),
-                    label: Text(
-                      'Search',
-                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                        items: const [
+                          DropdownMenuItem(value: 'dog', child: Text('Dog')),
+                          DropdownMenuItem(value: 'cat', child: Text('Cat')),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            controller.changeAnimalType(value);
+                          }
+                        },
+                      ),
                     ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.45,
+                      child: DropdownButtonFormField<String>(
+                        value: controller.selectedGender.value.isEmpty
+                            ? null
+                            : controller.selectedGender.value,
+                        decoration: const InputDecoration(
+                          labelText: 'Gender',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: '', child: Text('Any')),
+                          DropdownMenuItem(value: 'Male', child: Text('Male')),
+                          DropdownMenuItem(value: 'Female', child: Text('Female')),
+                        ],
+                        onChanged: (value) {
+                          controller.selectedGender.value = value ?? '';
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                // 🔍 Search Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => controller.loadPets(),
+                    icon: const Icon(Icons.search),
+                    label: const Text('Search'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.teal,
                       foregroundColor: Colors.white,
-                      padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      textStyle: const TextStyle(fontSize: 16),
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 24),
-
-                // 🐕 Search Results
-                if (controller.pets.isNotEmpty)
-                  Text(
-                    "Search Results",
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-
-                const SizedBox(height: 8),
-
-                ...controller.pets.map((pet) {
-                  final petName = pet['name'] ?? 'Unknown';
-                  final breed = pet['breeds']?['primary'] ?? 'Unknown breed';
-                  final imageUrl = pet['photos'] != null &&
-                      pet['photos'].isNotEmpty
-                      ? pet['photos'][0]['medium']
-                      : null;
-
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    elevation: 3,
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(8),
-                      leading: imageUrl != null
-                          ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: CachedNetworkImage(
-                          imageUrl: imageUrl,
-                          width: 70,
-                          height: 70,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                          const Icon(Icons.pets, size: 50),
-                        ),
-                      )
-                          : const Icon(Icons.pets, size: 50),
-                      title: Text(
-                        petName,
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      subtitle: Text(
-                        breed,
-                        style: GoogleFonts.poppins(fontSize: 13),
-                      ),
-                    ),
-                  );
-                }).toList(),
-
                 const SizedBox(height: 20),
+
+                // 🐕 Pet Results Section
+                if (controller.errorMessage.value.isNotEmpty)
+                  Center(child: Text(controller.errorMessage.value))
+                else if (controller.pets.isEmpty)
+                  const Center(
+                    child: Text(
+                      'No pets available right now.',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  )
+                else
+                  GridView.builder(
+                    shrinkWrap: true, // ✅ prevents overflow
+                    physics: const NeverScrollableScrollPhysics(), // ✅ avoids nested scroll conflicts
+                    itemCount: controller.pets.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 0.75,
+                    ),
+                    itemBuilder: (context, index) {
+                      final pet = controller.pets[index];
+                      return GestureDetector(
+                        onTap: () => Get.to(() => PetDetailScreen(pet: pet)),
+                        child: PetCard(pet: pet),
+                      );
+                    },
+                  ),
               ],
             ),
-          );
-        }),
-      ),
+          ),
+        );
+      }),
     );
   }
 }
