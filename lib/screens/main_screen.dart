@@ -8,10 +8,8 @@ import 'profile_screen.dart';
 class MainScreen extends StatelessWidget {
   MainScreen({super.key});
 
-  // Initialize navigation controller
   final NavigationController navController = Get.put(NavigationController());
 
-  // List of screens for each tab
   final List<Widget> pages = [
     HomeScreen(),
     AdoptedScreen(),

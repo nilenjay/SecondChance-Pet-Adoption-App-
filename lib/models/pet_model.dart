@@ -19,7 +19,6 @@ class Pet {
     this.type,
   });
 
-  // Factory constructor to create a Pet object from JSON
   factory Pet.fromJson(Map<String, dynamic> json) {
     final photos = json['photos'] as List?;
     String? image;
@@ -39,8 +38,6 @@ class Pet {
       type: json['type'],
     );
   }
-
-  // Convert Pet object to JSON (optional for saving)
   Map<String, dynamic> toJson() {
     return {
       'id': id,

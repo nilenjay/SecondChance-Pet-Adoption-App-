@@ -69,7 +69,6 @@ class LoginScreen extends StatelessWidget {
                 const Text("or", style: TextStyle(color: Colors.grey)),
                 const SizedBox(height: 20),
 
-                // Animated Google Sign-In Button
                 _AnimatedGoogleButton(
                   text: "Continue with Google",
                   onTap: () => authController.signInWithGoogle(),
@@ -102,7 +101,6 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-// Google Sign-In Button Widget with Tap Animation
 class _AnimatedGoogleButton extends StatefulWidget {
   final String text;
   final VoidCallback onTap;

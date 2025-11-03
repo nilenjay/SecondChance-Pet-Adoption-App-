@@ -4,7 +4,6 @@ import '../services/pet_service.dart';
 class PetController extends GetxController {
   final PetService _petService = PetService();
 
-  // Reactive variables
   var isLoading = false.obs;
   var pets = [].obs;
   var breeds = <String>[].obs;

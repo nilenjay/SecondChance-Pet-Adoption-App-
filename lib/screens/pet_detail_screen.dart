@@ -20,7 +20,6 @@ class PetDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 🐾 Pet Image
             Hero(
               tag: pet.id ?? pet.name ?? '',
               child: ClipRRect(
@@ -46,7 +45,6 @@ class PetDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 15),
 
-            // 🐶 Pet Info Card
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Card(
@@ -98,7 +96,6 @@ class PetDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // 📝 Description Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
@@ -112,7 +109,6 @@ class PetDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            // ❤️ Adopt Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ElevatedButton.icon(

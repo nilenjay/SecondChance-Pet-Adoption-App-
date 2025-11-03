@@ -30,7 +30,6 @@ class SearchScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🧩 Filter Section
                 Wrap(
                   spacing: 10,
                   runSpacing: 10,
@@ -78,7 +77,6 @@ class SearchScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
 
-                // 🔍 Search Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
@@ -96,7 +94,6 @@ class SearchScreen extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // 🐕 Pet Results Section
                 if (controller.errorMessage.value.isNotEmpty)
                   Center(child: Text(controller.errorMessage.value))
                 else if (controller.pets.isEmpty)

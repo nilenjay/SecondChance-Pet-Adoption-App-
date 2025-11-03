@@ -11,7 +11,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Initialize the AuthController before running the app
   Get.put(AuthController());
 
   runApp(const PetAdoptionApp());
@@ -29,7 +28,7 @@ class PetAdoptionApp extends StatelessWidget {
         primarySwatch: Colors.teal,
         useMaterial3: true,
       ),
-      home:LoginScreen(), // Always start from login
+      home:LoginScreen(),
     );
   }
 }

@@ -4,13 +4,16 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/main_screen.dart';
 
 class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+  );
 
-  // ---------------- SIGN UP ----------------
+  // ---------------- EMAIL SIGN UP ----------------
   Future<void> signUp(String name, String email, String password) async {
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
@@ -27,56 +30,53 @@ class AuthController extends GetxController {
           'createdAt': DateTime.now(),
           'signInMethod': 'email',
         });
-
         Get.snackbar('Success', 'Account created successfully');
         Get.offAll(() => HomeScreen());
       }
-    } catch (e) {
-      Get.snackbar('Error', e.toString());
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar('Error', e.message ?? 'Signup failed');
     }
   }
 
-  // ---------------- LOGIN ----------------
+  // ---------------- EMAIL LOGIN ----------------
   Future<void> login(String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       Get.snackbar('Success', 'Login successful');
-      Get.offAll(() => HomeScreen());
-    } catch (e) {
-      Get.snackbar('Error', e.toString());
+      Get.offAll(() => MainScreen());
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar('Error', e.message ?? 'Login failed');
     }
   }
 
-  ///GOOGLE SIGN-IN
+  // ---------------- GOOGLE SIGN-IN ----------------
   Future<void> signInWithGoogle() async {
     try {
-      // Start the sign-in flow
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return; // cancelled
+      // Ensure user is logged out before new login
+      await _googleSignIn.signOut();
 
-      // Obtain the auth details from the request
+      // Start the Google sign-in flow
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return; // user cancelled
+
       final GoogleSignInAuthentication googleAuth =
       await googleUser.authentication;
 
-      // Create a new credential
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Sign in to Firebase with the Google credential
       UserCredential userCredential =
       await _auth.signInWithCredential(credential);
       User? user = userCredential.user;
 
       if (user != null) {
-        // Check if user already exists in Firestore
-        DocumentSnapshot userDoc =
-        await _firestore.collection('users').doc(user.uid).get();
+        final userRef = _firestore.collection('users').doc(user.uid);
+        final userDoc = await userRef.get();
 
         if (!userDoc.exists) {
-          // Add user to Firestore if new
-          await _firestore.collection('users').doc(user.uid).set({
+          await userRef.set({
             'uid': user.uid,
             'name': user.displayName,
             'email': user.email,
@@ -87,24 +87,25 @@ class AuthController extends GetxController {
         }
 
         Get.snackbar('Success', 'Signed in with Google');
-        Get.offAll(() => HomeScreen());
+        Get.offAll(() => MainScreen());
       }
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar('Error', e.message ?? 'Google sign-in failed');
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      Get.snackbar('Error', 'Something went wrong: $e');
     }
   }
 
-  /// LOGOUT
+  // ---------------- LOGOUT ----------------
   Future<void> logout() async {
     try {
       await _auth.signOut();
       await _googleSignIn.signOut();
       Get.offAll(() => LoginScreen());
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      Get.snackbar('Error', 'Logout failed: $e');
     }
   }
 
-  ///CURRENT USER
   User? get currentUser => _auth.currentUser;
 }

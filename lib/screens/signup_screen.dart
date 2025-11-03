@@ -112,7 +112,6 @@ class SignupScreen extends StatelessWidget {
   }
 }
 
-// Reuse the same animated Google button
 class _AnimatedGoogleButton extends StatefulWidget {
   final String text;
   final VoidCallback onTap;

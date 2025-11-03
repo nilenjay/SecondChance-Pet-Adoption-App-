@@ -4,13 +4,11 @@ import '../services/pet_service.dart';
 class SearchPetController extends GetxController {
   final PetService _petService = PetService();
 
-  // Reactive state variables
   var isLoading = false.obs;
   var pets = [].obs;
   var breeds = <String>[].obs;
   var errorMessage = ''.obs;
 
-  // Filters
   var selectedType = 'dog'.obs;
   var selectedBreed = ''.obs;
   var selectedAge = ''.obs;
