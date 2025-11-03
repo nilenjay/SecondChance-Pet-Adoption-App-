@@ -1,5 +1,5 @@
 class Pet {
-  final String? id;
+  final String id; // made non-nullable
   final String? name;
   final String? breed;
   final String? age;
@@ -9,7 +9,7 @@ class Pet {
   final String? type;
 
   Pet({
-    this.id,
+    required this.id,
     this.name,
     this.breed,
     this.age,
@@ -19,6 +19,7 @@ class Pet {
     this.type,
   });
 
+  // Used for external API (like PetFinder)
   factory Pet.fromJson(Map<String, dynamic> json) {
     final photos = json['photos'] as List?;
     String? image;
@@ -28,7 +29,7 @@ class Pet {
     }
 
     return Pet(
-      id: json['id']?.toString(),
+      id: json['id']?.toString() ?? '', // fallback to empty string if null
       name: json['name'],
       breed: json['breeds']?['primary'],
       age: json['age'],
@@ -38,6 +39,21 @@ class Pet {
       type: json['type'],
     );
   }
+
+  // Used for Firestore docs
+  factory Pet.fromDoc(String id, Map<String, dynamic> data) {
+    return Pet(
+      id: id,
+      name: data['name'],
+      breed: data['breed'],
+      age: data['age'],
+      gender: data['gender'],
+      description: data['description'],
+      imageUrl: data['imageUrl'],
+      type: data['type'],
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

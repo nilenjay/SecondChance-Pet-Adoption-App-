@@ -1,63 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../models/pet_model.dart';
+import '../controllers/pet_interaction_controller.dart';
 
 class PetCard extends StatelessWidget {
-  final Pet pet;
+  final PetModel pet;
+  final PetInteractionController petController = Get.find<PetInteractionController>();
 
-  const PetCard({super.key, required this.pet});
+  PetCard({super.key, required this.pet});
 
   @override
   Widget build(BuildContext context) {
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       elevation: 4,
-      shadowColor: Colors.black12,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Pet Image
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: AspectRatio(
-              aspectRatio: 1.3,
-              child: Image.network(
-                pet.imageUrl ??
-                    'https://cdn-icons-png.flaticon.com/512/616/616408.png',
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const Icon(
-                  Icons.pets,
-                  size: 40,
-                  color: Colors.grey,
-                ),
-              ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+            child: Image.network(
+              pet.imageUrl,
+              width: double.infinity,
+              height: 180,
+              fit: BoxFit.cover,
             ),
           ),
-
-          // Info
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  pet.name ?? 'Unnamed',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Text(pet.name,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                Text(
-                  pet.breed ?? 'Unknown Breed',
-                  style: const TextStyle(color: Colors.grey),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${pet.age ?? 'Age N/A'} • ${pet.gender ?? 'Gender N/A'}',
-                  style: const TextStyle(fontSize: 12, color: Colors.black54),
-                ),
+                Text(pet.breed, style: const TextStyle(color: Colors.grey)),
+
+                const SizedBox(height: 10),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Obx(() {
+                      final isFav = petController.favoritePets
+                          .any((p) => p.id == pet.id);
+                      return IconButton(
+                        icon: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: isFav ? Colors.redAccent : Colors.grey,
+                        ),
+                        onPressed: () => petController.toggleFavorite(pet),
+                      );
+                    }),
+                    ElevatedButton(
+                      onPressed: () => petController.adoptPet(pet),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text("Adopt"),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
